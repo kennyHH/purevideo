@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: Build Flutter APK
+    name: Build Flutter Debug APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,36 +29,6 @@ jobs:
           channel: 'stable'
           # cache: true # Optional: Enable caching
 
-      # This new step creates the key.properties and keystore file from secrets
-      - name: Decode Keystore and Create key.properties
-        # This step assumes your Flutter project is at the root of the repository.
-        # If it's in a subdirectory, adjust paths like ${{ github.workspace }}/android/app accordingly.
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
-        run: |
-          echo "Creating key.properties at project root..."
-          # This key.properties file is read by android/app/build.gradle.kts via rootProject.file("key.properties")
-          # The storeFile path inside it (e.g., "release.jks") should be relative to the android/app directory,
-          # because file(it) in android/app/build.gradle.kts resolves relative to android/app.
-          echo "storePassword=$STORE_PASSWORD" > ${{ github.workspace }}/key.properties
-          echo "keyPassword=$KEY_PASSWORD" >> ${{ github.workspace }}/key.properties
-          echo "keyAlias=$KEY_ALIAS" >> ${{ github.workspace }}/key.properties
-          echo "storeFile=release.jks" >> ${{ github.workspace }}/key.properties # This means the keystore is expected at android/app/release.jks
-
-          echo "Decoding and writing keystore to android/app/release.jks..."
-          mkdir -p ${{ github.workspace }}/android/app # Ensure directory exists for the keystore
-          echo $KEYSTORE_BASE64 | base64 --decode > ${{ github.workspace }}/android/app/release.jks
-          
-          echo "--- key.properties content (at root) ---"
-          cat ${{ github.workspace }}/key.properties
-          echo "----------------------------------------"
-          echo "--- Listing of android/app directory (should contain release.jks) ---"
-          ls -la ${{ github.workspace }}/android/app
-          echo "----------------------------------------"
-
       - name: Install Flutter dependencies
         run: flutter pub get
         # If your project is in a subdirectory, e.g. 'my_app', uncomment and set:
@@ -69,15 +39,14 @@ jobs:
       #   run: flutter clean
       #   # working-directory: ./my_app
 
-      - name: Build APK
-        run: flutter build apk --release
+      - name: Build Debug APK
+        run: flutter build apk --debug # Changed from --release to --debug
         # If your project is in a subdirectory, e.g. 'my_app', uncomment and set:
         # working-directory: ./my_app
 
-      - name: Upload APK artifact
+      - name: Upload Debug APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk # Default path for release APK
-          # If your project is in a subdirectory, the path might be: your_project_subdirectory/build/app/outputs/flutter-apk/app-release.apk
+          name: debug-apk # Changed artifact name for clarity
+          path: build/app/outputs/flutter-apk/app-debug.apk # Changed path to app-debug.apk
           if-no-files-found: error # Fails the step if the APK is not found
