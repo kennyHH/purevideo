@@ -28,7 +28,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.32.0' # Assuming you meant 3.22.0 or a valid version. Please double check.
+          flutter-version: '3.32.0' # Please verify this Flutter version
           channel: 'stable'
           cache: true
 
@@ -41,8 +41,8 @@ jobs:
 
       - name: Decode Android Keystore
         id: decode_keystore
-        # Only run this step if the secret is available, preventing errors on forks without the secret
-        if: secrets.ANDROID_SIGNING_KEY_STORE_BASE64 != ''
+        # Only run this step if the secret is available and not empty
+        if: ${{ secrets.ANDROID_SIGNING_KEY_STORE_BASE64 != '' }} # <-- CORRECTED LINE
         run: |
           echo "Writing keystore to ${{ runner.temp }}/upload-keystore.jks"
           echo "${{ secrets.ANDROID_SIGNING_KEY_STORE_BASE64 }}" | base64 --decode > "${{ runner.temp }}/upload-keystore.jks"
@@ -58,7 +58,7 @@ jobs:
           SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
           # Use the output from the decode_keystore step
-          # Only set this env var if the keystore was decoded (i.e., the secret was present)
+          # Only set this env var if the keystore was decoded (i.e., the secret was present and the step ran)
           SIGNING_STORE_FILE: ${{ steps.decode_keystore.outputs.STORE_FILE_PATH }}
 
       - name: Upload APK artifact
