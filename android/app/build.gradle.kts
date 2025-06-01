@@ -40,24 +40,15 @@ android {
         versionName = flutter.versionName
     }
 
-	signingConfigs {
-		create("release") {
-			// Try to read from environment variables (for CI/GitHub Actions)
-			// Fallback to key.properties for local builds
-			keyAlias = System.getenv("SIGNING_KEY_ALIAS") ?: keystoreProperties["keyAlias"] as String
-			keyPassword = System.getenv("SIGNING_KEY_PASSWORD") ?: keystoreProperties["keyPassword"] as String
-			storePassword = System.getenv("SIGNING_STORE_PASSWORD") ?: keystoreProperties["storePassword"] as String
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+            storePassword = keystoreProperties["storePassword"] as String
+        }
+    }
 
-			val storeFileFromEnv = System.getenv("SIGNING_STORE_FILE")
-			if (storeFileFromEnv != null) {
-				storeFile = file(storeFileFromEnv) // Use absolute path from env var
-			} else {
-				// Fallback for local builds, assumes path in key.properties is relative to the app module or correctly pathed
-				storeFile = keystoreProperties["storeFile"]?.let { file(it.toString()) }
-			}
-		}
-	}
-	
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
