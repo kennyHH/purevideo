@@ -26,7 +26,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0' # <-- IMPORTANT: Replace with your project's Flutter version
+          flutter-version: 'stable' # <-- IMPORTANT: Replace with your project's Flutter version
           channel: 'stable'
           cache: true # Highly recommended for faster builds
 
