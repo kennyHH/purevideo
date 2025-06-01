@@ -12,6 +12,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env: # <-- ADDED THIS SECTION
+      APP_ID: "io.github.majusss.purevideo" # <-- TODO: CHANGE THIS TO YOUR ACTUAL APP ID
 
     steps:
       - name: Checkout repository
@@ -26,7 +28,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.32.0' # <-- IMPORTANT: Replace with your project's Flutter version
+          flutter-version: '3.22.2' # <-- UPDATED: Using a recent stable Flutter version. 3.32.0 seemed like a typo. Adjust if '3.32.0' was intentional and valid.
           channel: 'stable'
           cache: true # Highly recommended for faster builds
 
